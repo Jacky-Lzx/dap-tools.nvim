@@ -1,0 +1,59 @@
+*dap-tools.txt*  Configuration and an independent panel for nvim-dap
+
+Requires Neovim >= 0.11 and nvim-dap on 'runtimepath'.
+
+SETUP                                              *dap-tools-setup*
+>
+  require('dap_tools').setup({
+    presets = { cpp = true, rust = true, swift = true },
+    ui = { auto_open = true, auto_close = false, height = 0.28 },
+  })
+<
+Python requires presets.python.adapter_python (debugpy's Python). Its python and
+env fields select the debuggee's interpreter/environment; both accept functions.
+Setup is cold. nvim-dap and the panel initialize on first action.
+
+COMMANDS                                           *dap-tools-commands*
+:DapTools                 Focus panel
+:DapToolsToggle           Show/hide panel
+:DapToolsClose            Hide without ending session
+:DapToolsRun[!] [name]    Choose/launch; ! prompts for quoted arguments
+:DapToolsContinue         Launch or continue
+:DapToolsRunLast[!]       Repeat previous launch
+:DapToolsStepOver         Step over
+:DapToolsStepInto         Step into
+:DapToolsStepOut          Step out
+:DapToolsPause            Pause
+:DapToolsTerminate        Terminate
+:DapToolsDisconnect       Disconnect (nvim-dap default semantics)
+:DapToolsBreakpoint [condition|log]
+:DapToolsWatch [expression]
+:DapToolsSessions         Choose session
+:DapToolsRepl             nvim-dap REPL
+:checkhealth dap_tools
+
+PANEL                                              *dap-tools-panel*
+1 scopes  2 stack  3 watches  4 breakpoints  5 output
+Enter expand/jump; d remove watch/breakpoint; a add watch; e evaluate;
+c continue; n step over; i step into; o step out; p pause; x terminate;
+s switch session; r REPL; q hide.
+
+Manual opening focuses the panel; automatic opening preserves source focus.
+The output page mirrors adapter output and the debuggee terminal. Enter program
+input in nvim-dap's terminal window. Global mappings are left to configuration.
+
+API                                                *dap-tools-api*
+require('dap_tools') provides setup(opts), run(name_or_config, opts), run_last(),
+continue(), action(name), breakpoint(kind), watch(expression), sessions(),
+open(section, focus), close(), toggle(), repl(), hover(), status(), backend(),
+configurations(ctx), cancel_launch() and dispose(). See README.md for options.
+
+Project .vscode/launch.json files are read at the captured root. Native adapter
+and filetype configuration entries coexist with plugin presets. User replacements
+are preserved on reconfiguration/disposal. VS Code tasks are not executed.
+
+cancel_launch() suppresses pending selection/input/preparation callbacks. It does
+not cancel native nvim-dap configuration evaluation or an already-started build.
+dispose() releases this plugin's resources, leaving sessions with nvim-dap.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
