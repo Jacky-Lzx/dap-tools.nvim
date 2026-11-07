@@ -411,6 +411,17 @@ function M.status()
 end
 
 local definitions = {
+  DapToolsInfo = {
+    function()
+      local backend = package.loaded.dap
+      vim.notify(
+        vim.inspect({ state = M.status(), adapters = backend and backend.adapters or {}, options = options }),
+        vim.log.levels.INFO,
+        { title = "dap-tools.nvim" }
+      )
+    end,
+    "Inspect configuration and current debug state without initializing the backend",
+  },
   DapTools = {
     function()
       M.open(nil, true)

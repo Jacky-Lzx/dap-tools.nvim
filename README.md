@@ -156,3 +156,10 @@ variable expansion, watches, frame navigation, stepping and restarting. Terminal
 transcripts and rendered screen text are retained under the printed artifact path.
 Set `DAP_TOOLS_CODELLDB=/path/to/codelldb` for additional real codelldb and
 `lldb-dap` checks against a compiled C fixture (requires clang and lldb-dap).
+
+## Health and inspection
+
+Health reports actionable failures and a compact result for applicable checks. Disabled,
+optional and not-yet-activated features do not warn solely because they are inactive.
+Inspection does not configure plugins, start services or install dependencies.
+Use `:DapToolsInfo` for detailed configuration and runtime information.
