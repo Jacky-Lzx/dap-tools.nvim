@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "default": [
+    "unit"
+  ],
+  "defaults": {
+    "DAP_TOOLS_DAP_PATH": "{root}/../nvim-dap"
+  },
+  "cases": [
+    {
+      "name": "runner-contracts",
+      "suite": "unit",
+      "command": [
+        "{python}",
+        "tests/runner_checks.py"
+      ],
+      "files": [
+        "tests/runner_checks.py"
+      ],
+      "timeout": 120
+    },
+    {
+      "name": "contracts",
+      "suite": "unit",
+      "command": [
+        "{nvim}",
+        "--headless",
+        "-u",
+        "NONE",
+        "-i",
+        "NONE",
+        "--noplugin",
+        "-n",
+        "-l",
+        "tests/contracts.lua"
+      ],
+      "files": [
+        "tests/contracts.lua"
+      ],
+      "timeout": 90,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua"
+      ]
+    },
+    {
+      "name": "launch",
+      "suite": "unit",
+      "command": [
+        "{nvim}",
+        "--headless",
+        "-u",
+        "NONE",
+        "-i",
+        "NONE",
+        "--noplugin",
+        "-n",
+        "-l",
+        "tests/launch.lua"
+      ],
+      "files": [
+        "tests/launch.lua"
+      ],
+      "timeout": 90,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua"
+      ]
+    },
+    {
+      "name": "panel",
+      "suite": "unit",
+      "command": [
+        "{nvim}",
+        "--headless",
+        "-u",
+        "NONE",
+        "-i",
+        "NONE",
+        "--noplugin",
+        "-n",
+        "-l",
+        "tests/panel.lua"
+      ],
+      "files": [
+        "tests/panel.lua"
+      ],
+      "timeout": 90,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua"
+      ]
+    },
+    {
+      "name": "cargo",
+      "suite": "unit",
+      "command": [
+        "{nvim}",
+        "--headless",
+        "-u",
+        "NONE",
+        "-i",
+        "NONE",
+        "--noplugin",
+        "-n",
+        "-l",
+        "tests/cargo.lua"
+      ],
+      "files": [
+        "tests/cargo.lua"
+      ],
+      "timeout": 90,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua"
+      ]
+    },
+    {
+      "name": "tui",
+      "suite": "acceptance",
+      "command": [
+        "{python}",
+        "tests/tui.py"
+      ],
+      "files": [
+        "tests/tui.py"
+      ],
+      "timeout": 180,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua"
+      ]
+    },
+    {
+      "name": "native",
+      "suite": "acceptance",
+      "command": [
+        "{nvim}",
+        "--headless",
+        "-u",
+        "NONE",
+        "-i",
+        "NONE",
+        "--noplugin",
+        "-n",
+        "-l",
+        "tests/native.lua"
+      ],
+      "files": [
+        "tests/native.lua"
+      ],
+      "timeout": 180,
+      "requires": [
+        "path:$DAP_TOOLS_DAP_PATH/lua/dap.lua",
+        "env:DAP_TOOLS_CODELLDB",
+        "path:$DAP_TOOLS_CODELLDB",
+        "exe:clang"
+      ]
+    }
+  ],
+  "support": {
+    "tests/minimal.lua": "Loaded by tests/contracts.lua",
+    "tests/real_tui.lua": "Loaded by tests/tui.py",
+    "tests/run.sh": "Stable shell entry point for tests/run.py"
+  },
+  "manual": {},
+  "fixtures": {
+    "nvim-dap": {
+      "repository": "mfussenegger/nvim-dap",
+      "revision": "cfa2d58f4537aca6ca83e2de1a0d9f1491121264",
+      "path": "$DAP_TOOLS_DAP_PATH"
+    }
+  }
+}

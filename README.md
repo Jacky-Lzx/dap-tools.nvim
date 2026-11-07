@@ -145,8 +145,9 @@ large trees are capped, rather than fully materialized.
 ## Validation
 
 ```sh
-DAP_TOOLS_DAP_PATH=/path/to/nvim-dap sh tests/run.sh
-DAP_TOOLS_REAL=1 DAP_TOOLS_DEBUGPY_PYTHON=/path/to/debugpy/python sh tests/run.sh
+export DAP_TOOLS_DAP_PATH=/path/to/nvim-dap
+sh tests/run.sh
+DAP_TOOLS_REAL=1 DAP_TOOLS_DEBUGPY_PYTHON=/path/to/debugpy/python sh tests/run.sh acceptance --filter tui
 ```
 
 The first command covers registry/command ownership, cold startup, arguments,
@@ -154,7 +155,7 @@ launch cancellation, stale panel responses and Cargo artifact selection. The
 second also runs a real debugpy session in a PTY, with actual keys for prompts,
 variable expansion, watches, frame navigation, stepping and restarting. Terminal
 transcripts and rendered screen text are retained under the printed artifact path.
-Set `DAP_TOOLS_CODELLDB=/path/to/codelldb` for additional real codelldb and
+Select `acceptance --filter native` with `DAP_TOOLS_CODELLDB=/path/to/codelldb` for real codelldb and
 `lldb-dap` checks against a compiled C fixture (requires clang and lldb-dap).
 
 ## Health and inspection
@@ -163,3 +164,5 @@ Health reports actionable failures and a compact result for applicable checks. D
 optional and not-yet-activated features do not warn solely because they are inactive.
 Inspection does not configure plugins, start services or install dependencies.
 Use `:DapToolsInfo` for detailed configuration and runtime information.
+
+[Test workflow](tests/README.md): registered suites, filtering, required fixtures and retained failure evidence.
