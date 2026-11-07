@@ -1,19 +1,58 @@
-*dap-tools.txt*  Configuration and an independent panel for nvim-dap
+*dap-tools.txt*	Debugger launch workflows and an independent panel backed by nvim-dap.
+
+==============================================================================
+CONTENTS                                                           *dap-tools*
+
+  Quick start         |dap-tools-quickstart|
+  Commands            |dap-tools-commands|
+  Options             |dap-tools-options|
+  Lua API             |dap-tools-api|
+  Lifecycle           |dap-tools-lifecycle|
+  Troubleshooting     |dap-tools-troubleshooting|
+
+==============================================================================
+QUICK START                                             *dap-tools-quickstart*
+
+Requires Neovim 0.11+. nvim-dap is required. Install debug adapters
+separately; presets are opt-in.
+
+>lua
+    require("dap_tools").setup({ presets = { cpp = true, rust = true, swift = true } })
+<
+
+The example above selects a small working setup. Full defaults, options and
+feature contracts are documented in this reference. Public installation and
+package-manager examples are in README.md.
+
+==============================================================================
+TROUBLESHOOTING                                    *dap-tools-troubleshooting*
+
+Check the minimum Neovim version and feature dependencies first. Run
+:checkhealth dap_tools to inspect availability. Global mappings shown in the
+README are configuration examples unless explicitly documented as plugin
+defaults. Keep one owner for each overridden UI or mapping.
+
+==============================================================================
+LIFECYCLE                                                *dap-tools-lifecycle*
+
+Setup and cleanup follow the plugin-specific contracts documented below.
+Read-only inspection and explicit feature actions have separate
+responsibilities.
 
 Requires Neovim >= 0.11 and nvim-dap on 'runtimepath'.
 
-SETUP                                              *dap-tools-setup*
+SETUP                                                        *dap-tools-setup*
 >
   require('dap_tools').setup({
     presets = { cpp = true, rust = true, swift = true },
     ui = { auto_open = true, auto_close = false, height = 0.28 },
   })
 <
-Python requires presets.python.adapter_python (debugpy's Python). Its python and
-env fields select the debuggee's interpreter/environment; both accept functions.
-Setup is cold. nvim-dap and the panel initialize on first action.
+Python requires presets.python.adapter_python (debugpy's Python). Its python
+and env fields select the debuggee's interpreter/environment; both accept
+functions. Setup is cold. nvim-dap and the panel initialize on first action.
 
-COMMANDS                                           *dap-tools-commands*
+COMMANDS                                                  *dap-tools-commands*
 :DapTools                 Focus panel
 :DapToolsToggle           Show/hide panel
 :DapToolsClose            Hide without ending session
@@ -32,28 +71,105 @@ COMMANDS                                           *dap-tools-commands*
 :DapToolsRepl             nvim-dap REPL
 :checkhealth dap_tools
 
-PANEL                                              *dap-tools-panel*
+PANEL                                                        *dap-tools-panel*
 1 scopes  2 stack  3 watches  4 breakpoints  5 output
-Enter expand/jump; d remove watch/breakpoint; a add watch; e evaluate;
-c continue; n step over; i step into; o step out; p pause; x terminate;
-s switch session; r REPL; q hide.
+Enter expand/jump; d remove watch/breakpoint; a add watch; e evaluate; c
+continue; n step over; i step into; o step out; p pause; x terminate; s switch
+session; r REPL; q hide.
 
 Manual opening focuses the panel; automatic opening preserves source focus.
-The output page mirrors adapter output and the debuggee terminal. Enter program
-input in nvim-dap's terminal window. Global mappings are left to configuration.
+The output page mirrors adapter output and the debuggee terminal. Enter
+program input in nvim-dap's terminal window. Global mappings are left to
+configuration.
 
-API                                                *dap-tools-api*
-require('dap_tools') provides setup(opts), run(name_or_config, opts), run_last(),
-continue(), action(name), breakpoint(kind), watch(expression), sessions(),
-open(section, focus), close(), toggle(), repl(), hover(), status(), backend(),
-configurations(ctx), cancel_launch() and dispose(). See README.md for options.
+API                                                            *dap-tools-api*
+require('dap_tools') provides setup(opts), run(name_or_config, opts),
+run_last(), continue(), action(name), breakpoint(kind), watch(expression),
+sessions(), open(section, focus), close(), toggle(), repl(), hover(),
+status(), backend(), configurations(ctx), cancel_launch() and dispose(). See
+|dap-tools-options| for options.
 
-Project .vscode/launch.json files are read at the captured root. Native adapter
-and filetype configuration entries coexist with plugin presets. User replacements
-are preserved on reconfiguration/disposal. VS Code tasks are not executed.
+Project .vscode/launch.json files are read at the captured root. Native
+adapter and filetype configuration entries coexist with plugin presets. User
+replacements are preserved on reconfiguration/disposal. VS Code tasks are not
+executed.
 
-cancel_launch() suppresses pending selection/input/preparation callbacks. It does
-not cancel native nvim-dap configuration evaluation or an already-started build.
-dispose() releases this plugin's resources, leaving sessions with nvim-dap.
+cancel_launch() suppresses pending selection/input/preparation callbacks. It
+does not cancel native nvim-dap configuration evaluation or an already-started
+build. dispose() releases this plugin's resources, leaving sessions with
+nvim-dap.
 
- vim:tw=78:ts=8:noet:ft=help:norl:
+==============================================================================
+CONFIGURATION AND API                                      *dap-tools-options*
+                                   *dap-tools-reference-configuration-and-api*
+
+>lua
+    local tools = require('dap_tools')
+    tools.setup({
+      adapters = {},       -- nvim-dap adapter definitions
+      configurations = {}, -- filetype -> list of nvim-dap configurations
+      aliases = {},        -- e.g. { c = 'cpp' }; no chained aliases
+      presets = {},
+      ui = {
+        position = 'bottom', -- or 'right'
+        height = 0.28,      -- fraction <= 1, otherwise rows/columns
+        auto_open = true,
+        auto_close = false,
+        max_lines = 2000,   -- retained adapter lines; terminal tail is also bounded
+        max_children = 200, -- displayed variables per node
+      },
+      -- Optional integration for a package manager that mounts nvim-dap on demand:
+      backend_loader = nil,
+      -- Optional asynchronous preparation. Call done() on success or done(error).
+      before_start = nil, -- function(config, ctx, done) ... end
+    })
+
+    tools.run('Python: launch file', { args = { '--name', 'two words' } })
+    tools.run({ name = 'Attach', type = 'python', request = 'attach',
+      connect = { host = '127.0.0.1', port = 5678 } })
+    tools.open('stack', true)
+    tools.close()
+    tools.watch('answer')
+    tools.breakpoint('condition')
+    tools.action('step_over')
+    tools.run_last()
+    tools.cancel_launch() -- cancels pending configuration/argument/preparation choices
+    local state = tools.status() -- does not initialize the backend
+    local backend = tools.backend() -- explicitly initializes it
+    tools.dispose()
+<
+
+`ctx` contains `buf`, `win`, `file`, `filetype`, `cwd`, and `root`. Root
+discovery uses `.git`, `Cargo.toml`, `pyproject.toml`, `Package.swift`, or
+`package.json`, falling back to cwd. Top-level configuration callbacks receive
+this captured context as an optional argument. Preset options accept callbacks
+for Python interpreters/env. Explicit `adapters` and per-filetype
+`configurations` replace the respective preset definitions. `cpp` and `rust`
+share `codelldb`; customize that adapter through `adapters.codelldb` when
+enabling both.
+
+Reconfiguration validates before changing live options. It replaces
+plugin-owned registrations and preserves unrelated native configurations and
+user replacements. `dispose()` removes owned commands/listeners/panel
+resources and restores replaced adapter/configuration entries; it does not
+terminate nvim-dap sessions. Pending native nvim-dap resolution (such as an
+already-started Cargo build) belongs to nvim-dap and is not canceled by
+`cancel_launch()`.
+
+Variable and watch responses are checked against session, frame and stop
+epoch, so previous requests cannot paint a newer stop. Variables are expanded
+on demand; large trees are capped, rather than fully materialized.
+
+==============================================================================
+HEALTH AND INSPECTION              *dap-tools-reference-health-and-inspection*
+
+Health reports actionable failures and a compact result for applicable checks.
+Disabled, optional and not-yet-activated features do not warn solely because
+they are inactive. Inspection does not configure plugins, start services or
+install dependencies. Use `:DapToolsInfo` for detailed configuration and
+runtime information.
+
+Test workflow (tests/README.md): registered suites, filtering, required
+fixtures and retained failure evidence.
+
+vim:tw=78:ts=8:noet:ft=help:norl:
