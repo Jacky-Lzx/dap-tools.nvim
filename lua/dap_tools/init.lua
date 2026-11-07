@@ -417,7 +417,7 @@ local definitions = {
       vim.notify(
         vim.inspect({ state = M.status(), adapters = backend and backend.adapters or {}, options = options }),
         vim.log.levels.INFO,
-        { title = "dap-tools.nvim" }
+        { title = "dap-tools.nvim", filetype = "lua" }
       )
     end,
     "Inspect configuration and current debug state without initializing the backend",
